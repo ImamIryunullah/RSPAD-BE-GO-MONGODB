@@ -13,5 +13,6 @@ func MappingRouter(r *gin.RouterGroup) {
 		mapRouter.GET("", controllers.GetMappings)
 		mapRouter.PUT("/:id", controllers.UpdateMapping)
 		mapRouter.DELETE("/:id", controllers.DeleteMapping)
+		mapRouter.DELETE("", controllers.DeleteSemuaMapping)
 	}
 }

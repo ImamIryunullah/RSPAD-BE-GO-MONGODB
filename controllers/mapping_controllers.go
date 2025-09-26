@@ -19,7 +19,7 @@ func mappingCollection() *mongo.Collection {
 	return config.DB.Collection("mappings")
 }
 
-func CreateMapping(c *gin.Context) {	
+func CreateMapping(c *gin.Context) {
 	var mappings []models.Mapping
 	if err := c.ShouldBindJSON(&mappings); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -61,7 +61,6 @@ func GetMappings(c *gin.Context) {
 		return
 	}
 
-	// langsung return array
 	c.JSON(http.StatusOK, mappings)
 }
 
@@ -123,4 +122,24 @@ func DeleteMapping(c *gin.Context) {
 	}
 
 	helper.ResponseSucces(c, http.StatusOK, "Berhasil hapus mapping", result)
+}
+
+func DeleteSemuaMapping(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := mappingCollection().DeleteMany(ctx, bson.M{})
+	if err != nil {
+		helper.ErrorResponse(c, http.StatusInternalServerError, "Gagal hapus semua mapping", err.Error())
+		return
+	}
+
+	if result.DeletedCount == 0 {
+		helper.ErrorResponse(c, http.StatusNotFound, "Tidak ada mapping yang ditemukan untuk dihapus", "")
+		return
+	}
+
+	helper.ResponseSucces(c, http.StatusOK, "Berhasil hapus semua mapping", gin.H{
+		"deletedCount": result.DeletedCount,
+	})
 }
